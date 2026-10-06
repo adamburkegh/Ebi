@@ -15,6 +15,7 @@ use std::path::PathBuf;
 // cargo build --release ; cp target/release/libebi.so ~/eclipse-workspace/Ebi/ ; cargo run itself java -o ~/eclipse-workspace/Ebi/src/org/processmining/ebi/plugins/EbiPlugins.java
 
 // This keeps Rust from "mangling" the name and making it unique for this crate.
+#[cfg(not(test))]
 #[unsafe(no_mangle)]
 pub extern "system" fn Java_org_processmining_ebi_CallEbi_call_1ebi_1internal<'local>(
     mut env: JNIEnv<'local>,

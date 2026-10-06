@@ -1703,6 +1703,7 @@ fn visualise_text(py: Python<'_>, arg0: &Bound<'_, PyAny>) -> PyResult<Py<PyAny>
 
 
 
+#[cfg(not(test))]
 #[pymodule]
 pub fn ebi(_py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {    m.add_function(wrap_pyfunction!(analyse_all_traces, m)?)?;
     m.add_function(wrap_pyfunction!(analyse_completeness, m)?)?;

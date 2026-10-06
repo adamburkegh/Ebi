@@ -56,12 +56,11 @@ pub fn import_or_load(
 
 #[cfg(test)]
 mod tests {
-    use crate::python::{python_export::natural_to_num_biguints, python_module_autogen::ebi};
+    use crate::python::python_export::natural_to_num_biguints;
     use ebi_objects::ebi_arithmetic::malachite::{
         Natural,
         base::num::basic::traits::{One, Zero},
     };
-    use pyo3::{Python, types::PyAnyMethods};
 
     #[test]
     fn num_bigint_conversion() {
@@ -84,20 +83,5 @@ mod tests {
         assert_eq!(n_num.to_string(), n_str);
     }
 
-    #[test]
-    fn test_python() {
-        pyo3::append_to_inittab!(ebi);
-        Python::initialize();
-        Python::attach(|py| {
-            let py_module = py.import("ebi").unwrap();
-            let _py_function = py_module.getattr("visualise_text").unwrap();
-            // let result: PyResult<String> = match py_function.call1((1i32,)) {
-            //     Ok(r) => r.extract(),
-            //     Err(e) => Err(e),
-            // };
-            // let result = result.unwrap();
-            // let expected_result = "1";
-            // assert_eq!(result, expected_result);
-        });
-    }
+    // The `#[pymodule] fn ebi` is `#[cfg(not(test))]` (duplicate PyInit_ebi at link time), so it can't be tested here.
 }

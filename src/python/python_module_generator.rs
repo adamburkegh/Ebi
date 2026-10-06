@@ -21,7 +21,7 @@ use crate::ebi_framework::ebi_command::EbiCommand;"
     );
     let mut functions = String::new();
     let mut module = format!(
-        "#[pymodule]\npub fn ebi(_py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {{"
+        "#[cfg(not(test))]\n#[pymodule]\npub fn ebi(_py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {{"
     );
 
     for path in EBI_COMMANDS.get_command_paths() {
