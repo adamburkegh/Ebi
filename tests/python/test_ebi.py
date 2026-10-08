@@ -20,5 +20,12 @@ class ConvertStochasticDirectlyFollowsModel(unittest.TestCase):
         self.assertTrue(result.startswith("stochastic directly follows model"))
 
 
+class FractionResults(unittest.TestCase):
+    def test_a_fraction_is_returned_as_float_numerator_denominator(self):
+        model = (TESTFILES / "aa-ab-ba_ali.slpn").read_text()
+        language = (TESTFILES / "aa.lang").read_text()
+        self.assertEqual(ebi.probability_log(model, language), [0.0, 0, 1])
+
+
 if __name__ == "__main__":
     unittest.main()
