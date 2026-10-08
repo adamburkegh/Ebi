@@ -3,6 +3,7 @@
 /.vscode
 /builds
 /python-runtime
+/var/
 
 *.swp
 
