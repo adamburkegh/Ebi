@@ -9,12 +9,15 @@ use crate::{
         ebi_trait::EbiTrait,
         ebi_trait_object::EbiTraitObject,
         object_importers::{
-            ToDeterministicFiniteAutomatonObject, ToEventLogObject, ToEventLogXesObject,
+            ToBusinessProcessModelAndNotationObject, ToDeterministicFiniteAutomatonObject,
+            ToEventLogEventAttributesObject, ToEventLogObject, ToEventLogXesObject,
             ToFiniteLanguageObject, ToFiniteStochasticLanguageObject, ToLabelledPetriNetObject,
-            ToProcessTreeObject, ToStochasticDeterministicFiniteAutomatonObject,
+            ToPartiallyOrderedWorkflowLanguageObject, ToProcessTreeObject,
+            ToStochasticDeterministicFiniteAutomatonObject,
+            ToStochasticNondeterministicFiniteAutomatonObject,
         },
         trait_importers::{
-            ToActivitiesTrait, ToEventLogTrait, ToFiniteLanguageTrait,
+            ToActivitiesTrait, ToEventLogEventAttributesTrait, ToEventLogTrait, ToFiniteLanguageTrait,
             ToFiniteStochasticLanguageTrait, ToGraphableTrait, ToIterableLanguageTrait,
             ToIterableStochasticLanguageTrait, ToQueriableStochasticLanguageTrait,
             ToSemanticsTrait, ToStochasticDeterministicSemanticsTrait, ToStochasticSemanticsTrait,
@@ -207,8 +210,26 @@ impl ImportableFromPM4Py for EventLogPython {
                         &Self::PY_FILE_HANDLER.unwrap(),
                     ));
                 }
+                EbiInputType::Object(EbiObjectType::StochasticNondeterministicFiniteAutomaton) => {
+                    return Some(EbiInput::Object(
+                        self.to_stochastic_nondeterministic_finite_automaton_object(),
+                        &Self::PY_FILE_HANDLER.unwrap(),
+                    ));
+                }
+                EbiInputType::Object(EbiObjectType::EventLogEventAttributes) => {
+                    return Some(EbiInput::Object(
+                        self.to_event_log_event_attributes_object(),
+                        &Self::PY_FILE_HANDLER.unwrap(),
+                    ));
+                }
                 EbiInputType::Trait(etrait) => {
                     match etrait {
+                        EbiTrait::EventLogEventAttributes => {
+                            return Some(EbiInput::Trait(
+                                self.to_event_log_event_attributes_ebi_trait_object(),
+                                &Self::PY_FILE_HANDLER.unwrap(),
+                            ));
+                        }
                         EbiTrait::Activities => {
                             return Some(EbiInput::Trait(
                                 self.to_activities_ebi_trait_object(),
@@ -519,6 +540,18 @@ impl ImportableFromPM4Py for ProcessTree {
                 EbiInputType::Object(EbiObjectType::LabelledPetriNet) => {
                     return Some(EbiInput::Object(
                         self.to_labelled_petri_net_object(),
+                        &Self::PY_FILE_HANDLER.unwrap(),
+                    ));
+                }
+                EbiInputType::Object(EbiObjectType::BusinessProcessModelAndNotation) => {
+                    return Some(EbiInput::Object(
+                        self.to_business_process_model_and_notation_object(),
+                        &Self::PY_FILE_HANDLER.unwrap(),
+                    ));
+                }
+                EbiInputType::Object(EbiObjectType::PartiallyOrderedWorkflowLanguage) => {
+                    return Some(EbiInput::Object(
+                        self.to_partially_ordered_workflow_language_object(),
                         &Self::PY_FILE_HANDLER.unwrap(),
                     ));
                 }

@@ -10,7 +10,7 @@ use crate::{
         javascript_function_name, javascript_html_form, javascript_html_header,
     },
     multiple_reader::MultipleReader,
-    python::python::pm4py_function_name,
+    python::python::{path_is_in_python, pm4py_function_name},
     text::HTMLEscaper,
 };
 use clap::Command;
@@ -380,7 +380,7 @@ fn command_availability(
     writeln!(
         f,
         "<tr><td>PM4Py/Python/PyPI</td><td>{}</td></tr>",
-        if path.last().unwrap().is_in_python() {
+        if path_is_in_python(&path) {
             format!(
                 "function <span class=\"texttt\">{}</span>({})",
                 pm4py_function_name(&path).escape_html(),

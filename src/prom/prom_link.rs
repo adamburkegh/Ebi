@@ -4,6 +4,7 @@ use crate::{ebi_framework::{
     ebi_output::{self},
 }, multiple_reader::MultipleReader};
 use ebi_objects::anyhow::{Context, Result, anyhow};
+#[cfg(not(test))]
 use jni::{
     JNIEnv,
     objects::{JClass, JObjectArray, JString},

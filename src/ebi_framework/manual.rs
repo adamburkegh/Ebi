@@ -15,7 +15,7 @@ use std::{
     io::Write,
 };
 use strum::IntoEnumIterator;
-use crate::{ebi_commands::ebi_command_itself::EBI_ITSELF, ebi_framework::{ebi_command::{EBI_COMMANDS, EbiCommand, get_applicable_commands}, ebi_file_handler::{EBI_FILE_HANDLERS, get_file_handlers}, ebi_importer_parameters, ebi_input::{self, EbiInputType}, ebi_output::{EbiExporter, EbiOutput, EbiOutputType}, ebi_trait::EbiTrait}, prom::java_object_handler::{JavaObjectHandlerQueryExport, JavaObjectHandlerQueryImport}, python::python::{PYTHON_PACKAGE, pm4py_function_name}, text::{Joiner, LatexEscaper, Rank}};
+use crate::{ebi_commands::ebi_command_itself::EBI_ITSELF, ebi_framework::{ebi_command::{EBI_COMMANDS, EbiCommand, get_applicable_commands}, ebi_file_handler::{EBI_FILE_HANDLERS, get_file_handlers}, ebi_importer_parameters, ebi_input::{self, EbiInputType}, ebi_output::{EbiExporter, EbiOutput, EbiOutputType}, ebi_trait::EbiTrait}, prom::java_object_handler::{JavaObjectHandlerQueryExport, JavaObjectHandlerQueryImport}, python::python::{PYTHON_PACKAGE, path_is_in_python, pm4py_function_name}, text::{Joiner, LatexEscaper, Rank}};
 
 pub fn manual() -> Result<EbiOutput> {
     let mut f = vec![];
@@ -241,7 +241,7 @@ fn write_command(f: &mut Vec<u8>, path: Vec<&EbiCommand>) -> Result<()> {
         }
 
         //pm4py
-        if path.last().unwrap().is_in_python() {
+        if path_is_in_python(&path) {
             writeln!(f, "\\\\This command is available in the {} Python package using the function {}.", PYTHON_PACKAGE, pm4py_function_name(&path).escape_latex())?;
         } else {
             writeln!(f, "\\\\This command is not available in the {} Python package.", PYTHON_PACKAGE)?;

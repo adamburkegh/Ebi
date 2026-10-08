@@ -767,7 +767,7 @@ fn conformance_unit_earth_movers(py: Python<'_>, arg0: &Bound<'_, PyAny>, arg1: 
 
 #[pyfunction]
 fn conformance_unit_earth_movers_sample(py: Python<'_>, arg0: &Bound<'_, PyAny>, arg1: &Bound<'_, PyAny>, arg2: &Bound<'_, PyAny>) -> PyResult<Py<PyAny>> {
-    ebi_objects::ebi_arithmetic::exact::set_exact_globally(false);
+    ebi_objects::ebi_arithmetic::exact::set_exact_globally(true);
     let command: &&EbiCommand = &&crate::ebi_commands::ebi_command_conformance::EBI_CONFORMANCE_UEMSC_SAMPLE;
     let input_types = match **command {
         EbiCommand::Command { input_types, .. } => input_types,
@@ -989,6 +989,27 @@ fn convert_log(py: Python<'_>, arg0: &Bound<'_, PyAny>) -> PyResult<Py<PyAny>> {
 fn convert_stochastic_deterministic_finite_automaton(py: Python<'_>, arg0: &Bound<'_, PyAny>) -> PyResult<Py<PyAny>> {
     ebi_objects::ebi_arithmetic::exact::set_exact_globally(true);
     let command: &&EbiCommand = &&crate::ebi_commands::ebi_command_convert::EBI_CONVERT_SDFA;
+    let input_types = match **command {
+        EbiCommand::Command { input_types, .. } => input_types,
+        _ => return Err(pyo3::exceptions::PyValueError::new_err("Expected a command.")),
+    };
+    let input0 = import_or_load(arg0, input_types[0], 0)
+            .map_err(|e| pyo3::exceptions::PyValueError::new_err(format!("Could not import argument 0: {}", e)))?;
+        let inputs = vec![input0];
+
+    // Execute the command.
+    let result = command.execute_with_inputs(inputs)
+        .map_err(|e| pyo3::exceptions::PyException::new_err(format!("Command error: {}", e)))?
+        .export_to_pm4py(py)
+        .map_err(|e| pyo3::exceptions::PyException::new_err(format!("Export error: {}", e)))?;
+
+    Ok(result)
+}
+
+#[pyfunction]
+fn convert_stochastic_directly_follows_model(py: Python<'_>, arg0: &Bound<'_, PyAny>) -> PyResult<Py<PyAny>> {
+    ebi_objects::ebi_arithmetic::exact::set_exact_globally(true);
+    let command: &&EbiCommand = &&crate::ebi_commands::ebi_command_convert::EBI_CONVERT_SDFM;
     let input_types = match **command {
         EbiCommand::Command { input_types, .. } => input_types,
         _ => return Err(pyo3::exceptions::PyValueError::new_err("Expected a command.")),
@@ -1749,6 +1770,7 @@ pub fn ebi(_py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {    m.add_
     m.add_function(wrap_pyfunction!(convert_labelled_petri_net, m)?)?;
     m.add_function(wrap_pyfunction!(convert_log, m)?)?;
     m.add_function(wrap_pyfunction!(convert_stochastic_deterministic_finite_automaton, m)?)?;
+    m.add_function(wrap_pyfunction!(convert_stochastic_directly_follows_model, m)?)?;
     m.add_function(wrap_pyfunction!(convert_stochastic_labelled_petri_net, m)?)?;
     m.add_function(wrap_pyfunction!(convert_stochastic_nondeterministic_finite_automaton, m)?)?;
     m.add_function(wrap_pyfunction!(discover_alignments_stochastic_business_process_model_and_notation, m)?)?;
