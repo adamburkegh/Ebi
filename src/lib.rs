@@ -187,6 +187,7 @@ pub mod stochastic_semantics {
     pub mod stochastic_semantics;
 }
 pub mod techniques {
+    pub mod alergia;
     pub mod align;
     pub mod alignment_stochastic_miner;
     pub mod any_traces;
@@ -194,6 +195,7 @@ pub mod techniques {
     pub mod bootstrap_test;
     pub mod bounded;
     pub mod chi_square_stochastic_conformance;
+    pub mod cohort_analysis;
     pub mod completeness;
     pub mod directly_follows_graph_abstractor;
     pub mod directly_follows_model_miner;
@@ -223,6 +225,7 @@ pub mod techniques {
     pub mod fitting_traces;
     pub mod flower_miner;
     pub mod gain_precision_recall;
+    // pub mod genetic_algorithm_for_stochastic_process_discovery;
     pub mod hellinger_stochastic_conformance;
     pub mod inductive_miner;
     pub mod infinitely_many_traces;

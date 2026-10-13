@@ -14,6 +14,14 @@ pub fn analyse_all_traces(javascript_inputs: Vec<JavascriptInput>, exporter_file
 }
 
 #[wasm_bindgen]
+pub fn analyse_cohort_analysis(javascript_inputs: Vec<JavascriptInput>, exporter_file_extension: &str) {
+    ebi_objects::ebi_arithmetic::exact::set_exact_globally(true);
+    let command: &&EbiCommand = 
+        &&crate::ebi_commands::ebi_command_analyse::EBI_ANALYSE_COHORT_ANALYSIS;
+    execute_javascript_command(command, javascript_inputs, "analyse_cohort_analysis", exporter_file_extension);
+}
+
+#[wasm_bindgen]
 pub fn analyse_completeness(javascript_inputs: Vec<JavascriptInput>, exporter_file_extension: &str) {
     ebi_objects::ebi_arithmetic::exact::set_exact_globally(true);
     let command: &&EbiCommand = 
@@ -406,6 +414,14 @@ pub fn convert_stochastic_nondeterministic_finite_automaton(javascript_inputs: V
 }
 
 #[wasm_bindgen]
+pub fn discover_alergia(javascript_inputs: Vec<JavascriptInput>, exporter_file_extension: &str) {
+    ebi_objects::ebi_arithmetic::exact::set_exact_globally(true);
+    let command: &&EbiCommand = 
+        &&crate::ebi_commands::ebi_command_discover::EBI_DISCOVER_ALERGIA;
+    execute_javascript_command(command, javascript_inputs, "discover_alergia", exporter_file_extension);
+}
+
+#[wasm_bindgen]
 pub fn discover_alignments_stochastic_business_process_model_and_notation(javascript_inputs: Vec<JavascriptInput>, exporter_file_extension: &str) {
     ebi_objects::ebi_arithmetic::exact::set_exact_globally(true);
     let command: &&EbiCommand = 
@@ -717,6 +733,54 @@ mod tests {
 
 		];
         crate::javascript::javascript_autogen::analyse_all_traces(inputs, ".xes");
+    }
+
+	#[test]
+	pub fn analyse_cohort_analysis_test_0() {
+        let inputs = vec![
+			JavascriptInput::from(std::fs::read_to_string("./testfiles/svn60.xes").unwrap())
+			// trait event log with trace attributes#./testfiles/svn60.xes
+			,
+			JavascriptInput::from("10".to_string())
+			// usize 10
+			,
+			JavascriptInput::from("0.05".to_string())
+			// fraction 0.05
+
+		];
+        crate::javascript::javascript_autogen::analyse_cohort_analysis(inputs, ".xes");
+    }
+
+	#[test]
+	pub fn analyse_cohort_analysis_test_1() {
+        let inputs = vec![
+			JavascriptInput::from(std::fs::read_to_string("./testfiles/a-b-double.xes").unwrap())
+			// trait event log with trace attributes#./testfiles/a-b-double.xes
+			,
+			JavascriptInput::from("10".to_string())
+			// usize 10
+			,
+			JavascriptInput::from("0.05".to_string())
+			// fraction 0.05
+
+		];
+        crate::javascript::javascript_autogen::analyse_cohort_analysis(inputs, ".xes");
+    }
+
+	#[test]
+	pub fn analyse_cohort_analysis_test_2() {
+        let inputs = vec![
+			JavascriptInput::from(std::fs::read_to_string("./testfiles/oc-log.ocel").unwrap())
+			// trait event log with trace attributes#./testfiles/oc-log.ocel
+			,
+			JavascriptInput::from("10".to_string())
+			// usize 10
+			,
+			JavascriptInput::from("0.05".to_string())
+			// fraction 0.05
+
+		];
+        crate::javascript::javascript_autogen::analyse_cohort_analysis(inputs, ".xes");
     }
 
 	#[test]
@@ -1385,7 +1449,6 @@ mod tests {
     }
 
 	#[test]
-	#[should_panic]
 	pub fn association_all_trace_attributes_test_1() {
         let inputs = vec![
 			JavascriptInput::from(std::fs::read_to_string("./testfiles/a-b-double.xes").unwrap())
@@ -1399,7 +1462,6 @@ mod tests {
     }
 
 	#[test]
-	#[should_panic]
 	pub fn association_all_trace_attributes_test_2() {
         let inputs = vec![
 			JavascriptInput::from(std::fs::read_to_string("./testfiles/oc-log.ocel").unwrap())
@@ -2317,6 +2379,45 @@ mod tests {
 
 		];
         crate::javascript::javascript_autogen::convert_stochastic_nondeterministic_finite_automaton(inputs, ".xes");
+    }
+
+	#[test]
+	pub fn discover_alergia_test_0() {
+        let inputs = vec![
+			JavascriptInput::from(std::fs::read_to_string("./testfiles/svn60.xes").unwrap())
+			// trait event log#./testfiles/svn60.xes
+			,
+			JavascriptInput::from("0.05".to_string())
+			// fraction 0.05
+
+		];
+        crate::javascript::javascript_autogen::discover_alergia(inputs, ".xes");
+    }
+
+	#[test]
+	pub fn discover_alergia_test_1() {
+        let inputs = vec![
+			JavascriptInput::from(std::fs::read_to_string("./testfiles/a-b.csv").unwrap())
+			// trait event log#./testfiles/a-b.csv
+			,
+			JavascriptInput::from("0.05".to_string())
+			// fraction 0.05
+
+		];
+        crate::javascript::javascript_autogen::discover_alergia(inputs, ".xes");
+    }
+
+	#[test]
+	pub fn discover_alergia_test_2() {
+        let inputs = vec![
+			JavascriptInput::from(std::fs::read_to_string("./testfiles/a-b-double.xes").unwrap())
+			// trait event log#./testfiles/a-b-double.xes
+			,
+			JavascriptInput::from("0.05".to_string())
+			// fraction 0.05
+
+		];
+        crate::javascript::javascript_autogen::discover_alergia(inputs, ".xes");
     }
 
 	#[test]
