@@ -51,6 +51,7 @@ type PyImporter = fn(&Bound<'_, PyAny>, &[&'static EbiInputType]) -> PyResult<Eb
 pub const PYTHON_IMPORTERS: &[PyImporter] = &[
     usize::py_import,
     Fraction::py_import,
+    Vec::<String>::py_import,
     EventLogPython::py_import,
     LabelledPetriNet::py_import,
     ProcessTree::py_import,
@@ -132,6 +133,29 @@ impl ImportableFromPM4Py for Fraction {
                     }
                 }
                 _ => { /* skip other input types */ }
+            }
+        }
+        None
+    }
+}
+
+impl ImportableFromPM4Py for Vec<String> {
+    const PY_FILE_HANDLER: Option<&'static EbiFileHandler> = None;
+
+    fn py_extract_object(py_object: &Bound<'_, PyAny>) -> PyResult<Self> {
+        //a bare string is rejected by PyO3 here, so a text is never taken for a list of characters
+        py_object.extract().map_err(|_| {
+            PyValueError::new_err("Expected a Python sequence of strings")
+        })
+    }
+
+    fn py_object_to_ebi_input(self, input_types: &[&'static EbiInputType]) -> Option<EbiInput> {
+        for &itype in input_types {
+            match itype {
+                EbiInputType::StringList => {
+                    return Some(EbiInput::StringList(self, itype));
+                }
+                _ => {}
             }
         }
         None

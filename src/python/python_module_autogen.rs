@@ -1531,9 +1531,57 @@ fn information(py: Python<'_>, arg0: &Bound<'_, PyAny>) -> PyResult<Py<PyAny>> {
 }
 
 #[pyfunction]
+fn probability_explain_trace(py: Python<'_>, arg0: &Bound<'_, PyAny>, arg1: &Bound<'_, PyAny>, arg2: &Bound<'_, PyAny>) -> PyResult<Py<PyAny>> {
+    ebi_objects::ebi_arithmetic::exact::set_exact_globally(true);
+    let command: &&EbiCommand = &&crate::ebi_commands::ebi_command_probability::EBI_PROBABILITY_EXPLAIN_TRACE;
+    let input_types = match **command {
+        EbiCommand::Command { input_types, .. } => input_types,
+        _ => return Err(pyo3::exceptions::PyValueError::new_err("Expected a command.")),
+    };
+    let input0 = import_or_load(arg0, input_types[0], 0)
+            .map_err(|e| pyo3::exceptions::PyValueError::new_err(format!("Could not import argument 0: {}", e)))?;
+        let input1 = import_or_load(arg1, input_types[1], 1)
+            .map_err(|e| pyo3::exceptions::PyValueError::new_err(format!("Could not import argument 1: {}", e)))?;
+        let input2 = import_or_load(arg2, input_types[2], 2)
+            .map_err(|e| pyo3::exceptions::PyValueError::new_err(format!("Could not import argument 2: {}", e)))?;
+        let inputs = vec![input0, input1, input2];
+
+    // Execute the command.
+    let result = command.execute_with_inputs(inputs)
+        .map_err(|e| pyo3::exceptions::PyException::new_err(format!("Command error: {}", e)))?
+        .export_to_pm4py(py)
+        .map_err(|e| pyo3::exceptions::PyException::new_err(format!("Export error: {}", e)))?;
+
+    Ok(result)
+}
+
+#[pyfunction]
 fn probability_log(py: Python<'_>, arg0: &Bound<'_, PyAny>, arg1: &Bound<'_, PyAny>) -> PyResult<Py<PyAny>> {
     ebi_objects::ebi_arithmetic::exact::set_exact_globally(true);
     let command: &&EbiCommand = &&crate::ebi_commands::ebi_command_probability::EBI_PROBABILITY_LOG;
+    let input_types = match **command {
+        EbiCommand::Command { input_types, .. } => input_types,
+        _ => return Err(pyo3::exceptions::PyValueError::new_err("Expected a command.")),
+    };
+    let input0 = import_or_load(arg0, input_types[0], 0)
+            .map_err(|e| pyo3::exceptions::PyValueError::new_err(format!("Could not import argument 0: {}", e)))?;
+        let input1 = import_or_load(arg1, input_types[1], 1)
+            .map_err(|e| pyo3::exceptions::PyValueError::new_err(format!("Could not import argument 1: {}", e)))?;
+        let inputs = vec![input0, input1];
+
+    // Execute the command.
+    let result = command.execute_with_inputs(inputs)
+        .map_err(|e| pyo3::exceptions::PyException::new_err(format!("Command error: {}", e)))?
+        .export_to_pm4py(py)
+        .map_err(|e| pyo3::exceptions::PyException::new_err(format!("Export error: {}", e)))?;
+
+    Ok(result)
+}
+
+#[pyfunction]
+fn probability_trace(py: Python<'_>, arg0: &Bound<'_, PyAny>, arg1: &Bound<'_, PyAny>) -> PyResult<Py<PyAny>> {
+    ebi_objects::ebi_arithmetic::exact::set_exact_globally(true);
+    let command: &&EbiCommand = &&crate::ebi_commands::ebi_command_probability::EBI_PROBABILITY_TRACE;
     let input_types = match **command {
         EbiCommand::Command { input_types, .. } => input_types,
         _ => return Err(pyo3::exceptions::PyValueError::new_err("Expected a command.")),
@@ -1724,9 +1772,11 @@ fn visualise_text(py: Python<'_>, arg0: &Bound<'_, PyAny>) -> PyResult<Py<PyAny>
 
 
 
-#[cfg(not(test))]
 #[pymodule]
-pub fn ebi(_py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {    m.add_function(wrap_pyfunction!(analyse_all_traces, m)?)?;
+pub fn _ebi(_py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_class::<super::python_handle::Model>()?;
+    m.add_class::<super::python_handle::Log>()?;
+    m.add_function(wrap_pyfunction!(analyse_all_traces, m)?)?;
     m.add_function(wrap_pyfunction!(analyse_completeness, m)?)?;
     m.add_function(wrap_pyfunction!(analyse_coverage, m)?)?;
     m.add_function(wrap_pyfunction!(analyse_directly_follows_edge_difference, m)?)?;
@@ -1794,7 +1844,9 @@ pub fn ebi(_py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {    m.add_
     m.add_function(wrap_pyfunction!(filter_traces_event_activity, m)?)?;
     m.add_function(wrap_pyfunction!(filter_traces_length, m)?)?;
     m.add_function(wrap_pyfunction!(information, m)?)?;
+    m.add_function(wrap_pyfunction!(probability_explain_trace, m)?)?;
     m.add_function(wrap_pyfunction!(probability_log, m)?)?;
+    m.add_function(wrap_pyfunction!(probability_trace, m)?)?;
     m.add_function(wrap_pyfunction!(sample_folds, m)?)?;
     m.add_function(wrap_pyfunction!(sample_partially_ordered_traces, m)?)?;
     m.add_function(wrap_pyfunction!(sample_traces, m)?)?;

@@ -1,5 +1,5 @@
 use crate::{
-    ebi_framework::ebi_input::{EbiInput, EbiInputType, attempt_parse}, multiple_reader::MultipleReader, python::python_import::PYTHON_IMPORTERS, text::Joiner
+    ebi_framework::ebi_input::{EbiInput, EbiInputType, attempt_parse}, multiple_reader::MultipleReader, python::{python_handle::{Log, Model}, python_import::PYTHON_IMPORTERS}, text::Joiner
 };
 use ebi_objects::anyhow::Result;
 use polars::prelude::*;
@@ -31,6 +31,18 @@ pub fn import_or_load(
     input_types: &[&'static EbiInputType],
     index: usize,
 ) -> PyResult<EbiInput> {
+    // 0) an object that has been parsed before
+    if let Ok(model) = py_obj.extract::<PyRef<Model>>() {
+        return model
+            .into_input(input_types)
+            .map_err(|e| PyValueError::new_err(format!("Could not use argument {}: {}", index, e)));
+    }
+    if let Ok(log) = py_obj.extract::<PyRef<Log>>() {
+        return log
+            .into_input(input_types)
+            .map_err(|e| PyValueError::new_err(format!("Could not use argument {}: {}", index, e)));
+    }
+
     // 1) try all in‑memory importers
     let input = if let Some(inp) = PYTHON_IMPORTERS
         .iter()
@@ -38,6 +50,13 @@ pub fn import_or_load(
     {
         inp
     } else if let Ok(content) = py_obj.extract::<String>() {
+        if input_types.contains(&&EbiInputType::StringList) {
+            return Err(PyValueError::new_err(format!(
+                "Could not import argument {}. Expected a list or tuple of strings, not a single string.",
+                index
+            )));
+        }
+
         // parse the content string
         attempt_parse(input_types, MultipleReader::String(content)).map_err(|e| {
             PyValueError::new_err(format!("Failed to parse argument {}, which was given as a string literal. Last attempted parsing gave the error {}. Expected {}.", index, e, EbiInputType::get_possible_inputs(input_types).join_with(", ", " or ")))
@@ -83,5 +102,5 @@ mod tests {
         assert_eq!(n_num.to_string(), n_str);
     }
 
-    // The `#[pymodule] fn ebi` is `#[cfg(not(test))]` (duplicate PyInit_ebi at link time), so it can't be tested here.
+    // The generated module (`#[pymodule] fn _ebi`) is not built for tests (it would define PyInit__ebi twice at link time), so it is tested from Python, in tests/python.
 }
