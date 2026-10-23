@@ -3,7 +3,7 @@ use crate::{
         ebi_command::{EBI_COMMANDS, EbiCommand, search_command_in_source_files},
         ebi_output::EbiOutput,
     },
-    python::python::{path_is_in_python, pm4py_function_name},
+    python::python::pm4py_function_name,
 };
 use ebi_objects::anyhow::Result;
 
@@ -25,7 +25,7 @@ use crate::ebi_framework::ebi_command::EbiCommand;"
     );
 
     for path in EBI_COMMANDS.get_command_paths() {
-        if path_is_in_python(&path) {
+        if path.last().unwrap().is_in_python() {
             let (fn_name, body) = ebi_command_to_pm4py_function(&path)?;
             functions.push_str(&body);
             module.push_str(&format!(

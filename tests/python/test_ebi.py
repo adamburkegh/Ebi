@@ -5,14 +5,20 @@ from fractions import Fraction
 from pathlib import Path
 
 import ebi
+from support import automaton_of
 
 TESTFILES = Path(__file__).resolve().parents[2] / "testfiles"
 
 
+# The functions of the ebi-pm 0.3.14 package on PyPI, as the installed wheel
+# lists them. A release must not lose any of them without that being decided.
+PUBLISHED = (Path(__file__).parent / "published_api_0_3_14.txt").read_text()
+
+
 class ExposedFunctions(unittest.TestCase):
-    def test_withheld_functions_are_absent(self):
-        for name in ("reduce_process_tree", "discover_non_stochastic_split_miner"):
-            self.assertFalse(hasattr(ebi, name), name)
+    def test_every_function_of_0_3_14_is_still_exposed(self):
+        missing = [name for name in PUBLISHED.split() if not hasattr(ebi, name)]
+        self.assertEqual(missing, [])
 
 
 class ConvertStochasticDirectlyFollowsModel(unittest.TestCase):
@@ -76,6 +82,67 @@ class ProbabilityTrace(unittest.TestCase):
     def test_an_element_that_is_not_a_string_is_rejected(self):
         with self.assertRaises(ValueError):
             ebi.probability_trace(self.model, ["b", 1])
+
+
+class CohortAnalysis(unittest.TestCase):
+    def setUp(self):
+        self.log = (TESTFILES / "cohort_test.xes").read_text()
+
+    def rows(self, result):
+        """The rows under the header. Rows with equal EMSC have no fixed
+        order, so they are sorted."""
+        lines = [line.split() for line in result.splitlines() if line.strip()]
+        return sorted(lines[1:])
+
+    def test_attribute_values_are_listed_with_their_emsc(self):
+        result = ebi.analyse_cohort_analysis(self.log, 0, 0.05)
+        self.assertEqual(
+            self.rows(result),
+            [
+                ["flow", "express", "0", "0"],
+                ["flow", "standard", "0", "0"],
+                ["region", "north", "1", "1"],
+                ["region", "south", "1", "1"],
+            ],
+        )
+
+    def test_the_minimum_size_may_be_a_float_a_fraction_or_a_text(self):
+        expected = self.rows(ebi.analyse_cohort_analysis(self.log, 0, 0.05))
+        for size in (Fraction(1, 20), "1/20"):
+            result = ebi.analyse_cohort_analysis(self.log, 0, size)
+            self.assertEqual(self.rows(result), expected)
+
+    def test_text_that_is_not_a_log_is_rejected(self):
+        with self.assertRaises(ValueError):
+            ebi.analyse_cohort_analysis("not a log", 0, 0.05)
+
+
+class DiscoverAlergia(unittest.TestCase):
+    def setUp(self):
+        self.log = (TESTFILES / "alergia.xes").read_text()
+
+    def test_an_automaton_is_learned_from_a_log(self):
+        result = ebi.discover_alergia(self.log, 0.05)
+        self.assertEqual(
+            automaton_of(result),
+            (
+                0,
+                [
+                    (0, 0, "0", Fraction(10, 31)),
+                    (0, 0, "1", Fraction(6, 31)),
+                ],
+            ),
+        )
+
+    def test_alpha_may_be_a_float_a_fraction_or_a_text(self):
+        expected = automaton_of(ebi.discover_alergia(self.log, 0.05))
+        for alpha in (Fraction(1, 20), "1/20"):
+            result = ebi.discover_alergia(self.log, alpha)
+            self.assertEqual(automaton_of(result), expected)
+
+    def test_text_that_is_not_a_log_is_rejected(self):
+        with self.assertRaises(ValueError):
+            ebi.discover_alergia("not a log", 0.05)
 
 
 class ModelHandles(unittest.TestCase):

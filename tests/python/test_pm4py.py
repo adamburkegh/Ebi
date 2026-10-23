@@ -2,6 +2,7 @@
 import unittest
 
 try:
+    from pm4py.objects.log.importer.xes import importer as xes_importer
     from pm4py.objects.log.obj import Event, EventLog, Trace
 except ImportError as error:
     raise unittest.SkipTest("pm4py is not installed") from error
@@ -9,6 +10,7 @@ except ImportError as error:
 from pathlib import Path
 
 import ebi
+from support import automaton_of
 
 TESTFILES = Path(__file__).resolve().parents[2] / "testfiles"
 
@@ -47,6 +49,50 @@ class LogHandles(unittest.TestCase):
     def test_something_that_is_not_a_log_is_rejected(self):
         with self.assertRaises(ValueError):
             ebi.Log.from_pm4py("not a log")
+
+
+def cohort_rows(result):
+    """The rows under the header. Rows with equal EMSC have no fixed order,
+    so they are sorted."""
+    lines = [line.split() for line in result.splitlines() if line.strip()]
+    return sorted(lines[1:])
+
+
+class CohortAnalysis(unittest.TestCase):
+    def setUp(self):
+        path = TESTFILES / "cohort_test.xes"
+        self.text = path.read_text()
+        self.log = xes_importer.apply(str(path))
+        self.expected = cohort_rows(
+            ebi.analyse_cohort_analysis(self.text, 0, 0.05)
+        )
+
+    def test_a_pm4py_log_gives_the_same_answer_as_its_xes_text(self):
+        result = ebi.analyse_cohort_analysis(self.log, 0, 0.05)
+        self.assertEqual(cohort_rows(result), self.expected)
+
+    def test_a_log_handle_gives_the_same_answer_as_its_xes_text(self):
+        log = ebi.Log.from_pm4py(self.log)
+        result = ebi.analyse_cohort_analysis(log, 0, 0.05)
+        self.assertEqual(cohort_rows(result), self.expected)
+
+
+class DiscoverAlergia(unittest.TestCase):
+    def setUp(self):
+        path = TESTFILES / "alergia.xes"
+        self.text = path.read_text()
+        self.log = xes_importer.apply(str(path))
+
+    def test_a_pm4py_log_gives_the_same_automaton_as_its_xes_text(self):
+        result = ebi.discover_alergia(self.log, 0.05)
+        expected = ebi.discover_alergia(self.text, 0.05)
+        self.assertEqual(automaton_of(result), automaton_of(expected))
+
+    def test_a_log_handle_gives_the_same_automaton_as_its_xes_text(self):
+        log = ebi.Log.from_pm4py(self.log)
+        result = ebi.discover_alergia(log, 0.05)
+        expected = ebi.discover_alergia(self.text, 0.05)
+        self.assertEqual(automaton_of(result), automaton_of(expected))
 
 
 if __name__ == "__main__":

@@ -17,7 +17,8 @@ use crate::{
             ToStochasticNondeterministicFiniteAutomatonObject,
         },
         trait_importers::{
-            ToActivitiesTrait, ToEventLogEventAttributesTrait, ToEventLogTrait, ToFiniteLanguageTrait,
+            ToActivitiesTrait, ToEventLogEventAttributesTrait, ToEventLogTraceAttributesTrait,
+            ToEventLogTrait, ToFiniteLanguageTrait,
             ToFiniteStochasticLanguageTrait, ToGraphableTrait, ToIterableLanguageTrait,
             ToIterableStochasticLanguageTrait, ToQueriableStochasticLanguageTrait,
             ToSemanticsTrait, ToStochasticDeterministicSemanticsTrait, ToStochasticSemanticsTrait,
@@ -253,6 +254,17 @@ impl ImportableFromPM4Py for EventLogPython {
                                 self.to_event_log_event_attributes_ebi_trait_object(),
                                 &Self::PY_FILE_HANDLER.unwrap(),
                             ));
+                        }
+                        EbiTrait::EventLogTraceAttributes => {
+                            return match self.to_event_log_xes_object() {
+                                EbiObject::EventLogXes(log) => Some(EbiInput::Trait(
+                                    EbiTraitObject::EventLogTraceAttributes(
+                                        log.to_event_log_trace_attributes_trait(),
+                                    ),
+                                    &Self::PY_FILE_HANDLER.unwrap(),
+                                )),
+                                _ => None,
+                            };
                         }
                         EbiTrait::Activities => {
                             return Some(EbiInput::Trait(
